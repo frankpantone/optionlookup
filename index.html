@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Option Chain Lookup</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1><i class="fas fa-chart-line"></i> Option Chain Lookup</h1>
+            <p>Find optimal option contracts using real-time market data</p>
+        </header>
+
+        <div class="search-section">
+            <div class="search-container">
+                <div class="input-group">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="tickerInput" placeholder="Enter stock ticker (e.g., AAPL, SPY, TSLA)" maxlength="10">
+                    <button id="searchBtn" class="search-btn">
+                        <span class="btn-text">Search Options</span>
+                        <i class="fas fa-spinner fa-spin loading-icon" style="display: none;"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="filters-section" id="filtersSection" style="display: none;">
+            <div class="filters-container">
+                <div class="filter-group">
+                    <label for="expirationFilter">Expiration Date:</label>
+                    <select id="expirationFilter">
+                        <option value="">All Expirations</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="optionTypeFilter">Option Type:</label>
+                    <select id="optionTypeFilter">
+                        <option value="">All</option>
+                        <option value="call">Calls</option>
+                        <option value="put">Puts</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="sortBy">Sort By:</label>
+                    <select id="sortBy">
+                        <option value="greeks_score">Greeks Score</option>
+                        <option value="volume">Volume</option>
+                        <option value="open_interest">Open Interest</option>
+                        <option value="delta">Delta</option>
+                        <option value="gamma">Gamma</option>
+                        <option value="theta">Theta</option>
+                        <option value="vega">Vega</option>
+                        <option value="strike">Strike Price</option>
+                        <option value="bid">Bid Price</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="marketOutlook">Market Outlook:</label>
+                    <select id="marketOutlook">
+                        <option value="neutral">Neutral</option>
+                        <option value="bullish">Bullish</option>
+                        <option value="bearish">Bearish</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="results-section" id="resultsSection" style="display: none;">
+            <div class="stock-info" id="stockInfo">
+                <!-- Stock information will be displayed here -->
+            </div>
+
+            <div class="optimal-contracts" id="optimalContracts">
+                <!-- Optimal contracts will be highlighted here -->
+            </div>
+
+            <div class="option-chains" id="optionChains">
+                <!-- Option chains table will be displayed here -->
+            </div>
+        </div>
+
+        <div class="error-message" id="errorMessage" style="display: none;">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span id="errorText"></span>
+        </div>
+
+        <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+            <div class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Fetching option data...</p>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>Powered by Tradier API | Real-time market data</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

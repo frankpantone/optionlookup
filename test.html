@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; }
+        button { padding: 10px 20px; margin: 10px 0; }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>Tradier API Test</h1>
+    
+    <div class="test-section">
+        <h2>Test Stock Quote</h2>
+        <button onclick="testQuote()">Test AAPL Quote</button>
+        <div id="quoteResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test Option Symbols</h2>
+        <button onclick="testSymbols()">Test AAPL Symbols</button>
+        <div id="symbolsResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test Option Chain</h2>
+        <button onclick="testChain()">Test AAPL Chain (2024-12-20)</button>
+        <div id="chainResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test Option Chain with Greeks</h2>
+        <button onclick="testChainWithGreeks()">Test AAPL Chain with Greeks (2024-12-20)</button>
+        <div id="chainGreeksResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test Option Expiration Dates</h2>
+        <button onclick="testExpirations()">Test AAPL Expiration Dates</button>
+        <div id="expirationsResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Compare Expiration Dates</h2>
+        <input type="text" id="compareTickerInput" placeholder="Enter ticker (e.g., IREN)" value="IREN">
+        <button onclick="compareExpirations()">Compare Expiration Dates</button>
+        <div id="compareResult"></div>
+        <p><strong>Try IREN:</strong> A stock with Thursday expirations due to holiday adjustments</p>
+    </div>
+
+    <script>
+        const API_KEY = 'SbankthvlFeRl2IMBNWUTO3JbKFM';
+        const BASE_URL = 'https://api.tradier.com/v1';
+        
+        async function testQuote() {
+            const resultDiv = document.getElementById('quoteResult');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                const response = await fetch(`${BASE_URL}/markets/quotes?symbols=AAPL`, {
+                    headers: {
+                        'Authorization': `Bearer ${API_KEY}`,
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                resultDiv.innerHTML = `
+                    <div class="success">Success! Status: ${response.status}</div>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+        
+        async function testSymbols() {
+            const resultDiv = document.getElementById('symbolsResult');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                const response = await fetch(`${BASE_URL}/markets/options/lookup?underlying=AAPL`, {
+                    headers: {
+                        'Authorization': `Bearer ${API_KEY}`,
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                resultDiv.innerHTML = `
+                    <div class="success">Success! Status: ${response.status}</div>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+        
+        async function testChain() {
+            const resultDiv = document.getElementById('chainResult');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                const response = await fetch(`${BASE_URL}/markets/options/chains?symbol=AAPL&expiration=2024-12-20`, {
+                    headers: {
+                        'Authorization': `Bearer ${API_KEY}`,
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                resultDiv.innerHTML = `
+                    <div class="success">Success! Status: ${response.status}</div>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+        
+        async function testChainWithGreeks() {
+            const resultDiv = document.getElementById('chainGreeksResult');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                const response = await fetch(`${BASE_URL}/markets/options/chains?symbol=AAPL&expiration=2024-12-20&greeks=true`, {
+                    headers: {
+                        'Authorization': `Bearer ${API_KEY}`,
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                resultDiv.innerHTML = `
+                    <div class="success">Success! Status: ${response.status}</div>
+                    <p><strong>Greeks Data Available:</strong> ${data.options?.option?.[0]?.greeks ? 'Yes' : 'No'}</p>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+        
+        async function testExpirations() {
+            const resultDiv = document.getElementById('expirationsResult');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                const response = await fetch(`${BASE_URL}/markets/options/expirations?symbol=AAPL`, {
+                    headers: {
+                        'Authorization': `Bearer ${API_KEY}`,
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                let expirations = [];
+                if (data.expirations && data.expirations.date) {
+                    expirations = Array.isArray(data.expirations.date) ? data.expirations.date : [data.expirations.date];
+                }
+                
+                resultDiv.innerHTML = `
+                    <div class="success">Success! Status: ${response.status}</div>
+                    <p><strong>Found ${expirations.length} expiration dates for AAPL:</strong></p>
+                    <ul style="text-align: left; max-height: 200px; overflow-y: auto;">
+                        ${expirations.map(date => `<li>${date} (${new Date(date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })})</li>`).join('')}
+                    </ul>
+                    <details>
+                        <summary>Raw API Response</summary>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </details>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+        
+        async function compareExpirations() {
+            const ticker = document.getElementById('compareTickerInput').value.trim().toUpperCase();
+            const resultDiv = document.getElementById('compareResult');
+            
+            if (!ticker) {
+                resultDiv.innerHTML = '<div class="error">Please enter a ticker symbol</div>';
+                return;
+            }
+            
+            resultDiv.innerHTML = 'Fetching expiration dates and generating Friday dates...';
+            
+            try {
+                // Fetch from Tradier API
+                const response = await fetch(`${BASE_URL}/markets/options/expirations?symbol=${ticker}`, {
+                    headers: {
+                        'Authorization': `Bearer ${API_KEY}`,
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                let tradierExpirations = [];
+                if (data.expirations && data.expirations.date) {
+                    tradierExpirations = Array.isArray(data.expirations.date) ? data.expirations.date : [data.expirations.date];
+                }
+                
+                // Generate typical Friday expiration dates
+                const today = new Date();
+                const generatedFridays = [];
+                
+                for (let i = 0; i < 12; i++) {
+                    const futureDate = new Date(today);
+                    futureDate.setDate(today.getDate() + (i * 7));
+                    
+                    // Find next Friday
+                    const dayOfWeek = futureDate.getDay();
+                    const daysToFriday = (5 - dayOfWeek + 7) % 7;
+                    if (daysToFriday === 0 && i === 0) {
+                        futureDate.setDate(futureDate.getDate() + 7);
+                    } else {
+                        futureDate.setDate(futureDate.getDate() + daysToFriday);
+                    }
+                    
+                    const expiration = futureDate.toISOString().split('T')[0];
+                    generatedFridays.push(expiration);
+                }
+                
+                // Compare the dates
+                const tradierSet = new Set(tradierExpirations);
+                const fridaySet = new Set(generatedFridays);
+                
+                const onlyInTradier = tradierExpirations.filter(date => !fridaySet.has(date));
+                const onlyInFridays = generatedFridays.filter(date => !tradierSet.has(date));
+                const common = tradierExpirations.filter(date => fridaySet.has(date));
+                
+                resultDiv.innerHTML = `
+                    <div class="success">Comparison for ${ticker}</div>
+                    
+                    <h4>📊 Summary:</h4>
+                    <ul style="text-align: left;">
+                        <li><strong>Tradier API:</strong> ${tradierExpirations.length} expiration dates</li>
+                        <li><strong>Generated Fridays:</strong> ${generatedFridays.length} dates</li>
+                        <li><strong>Common dates:</strong> ${common.length}</li>
+                        <li><strong>Only in Tradier:</strong> ${onlyInTradier.length}</li>
+                        <li><strong>Only in Fridays:</strong> ${onlyInFridays.length}</li>
+                    </ul>
+                    
+                    ${onlyInTradier.length > 0 ? `
+                        <h4>📅 Dates only in Tradier (non-standard expirations):</h4>
+                        <ul style="text-align: left; color: #007bff;">
+                            ${onlyInTradier.slice(0, 10).map(date => `<li>${date} (${new Date(date).toLocaleDateString('en-US', { weekday: 'long' })})</li>`).join('')}
+                            ${onlyInTradier.length > 10 ? '<li>... and more</li>' : ''}
+                        </ul>
+                    ` : ''}
+                    
+                    ${onlyInFridays.length > 0 ? `
+                        <h4>📅 Generated Fridays not in Tradier:</h4>
+                        <ul style="text-align: left; color: #dc3545;">
+                            ${onlyInFridays.slice(0, 5).map(date => `<li>${date} (${new Date(date).toLocaleDateString('en-US', { weekday: 'long' })})</li>`).join('')}
+                        </ul>
+                    ` : ''}
+                    
+                    <details>
+                        <summary>All Tradier Expiration Dates</summary>
+                        <pre>${tradierExpirations.join('\\n')}</pre>
+                    </details>
+                `;
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>
